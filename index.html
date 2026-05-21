@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가위바위보 게임</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4a90e2, #50e3c2);
+            color: #222;
+        }
+        .container {
+            width: min(520px, 95%);
+            padding: 2rem;
+            border-radius: 22px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+            background: rgba(255,255,255,0.92);
+            text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 2.4rem;
+        }
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+        button {
+            width: 110px;
+            padding: 1rem 1.1rem;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.14);
+        }
+        .rock { background: #f5a623; color: white; }
+        .paper { background: #4a90e2; color: white; }
+        .scissors { background: #7ed321; color: white; }
+        .result-box {
+            padding: 1.4rem;
+            border-radius: 18px;
+            background: #f8f8f8;
+            margin-top: 1rem;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .score-card {
+            padding: 0.95rem;
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+        .score-card strong {
+            display: block;
+            margin-bottom: .5rem;
+            color: #666;
+        }
+        .score-card span {
+            font-size: 1.6rem;
+        }
+        .reset {
+            margin-top: 1.5rem;
+            background: #d0021b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>가위바위보</h1>
+        <p>버튼을 눌러서 컴퓨터와 대결하세요!</p>
+        <div class="choices">
+            <button class="rock" data-choice="rock">가위</button>
+            <button class="paper" data-choice="paper">바위</button>
+            <button class="scissors" data-choice="scissors">보</button>
+        </div>
+        <div class="result-box">
+            <p id="status">결과가 여기에 표시됩니다.</p>
+            <p><strong>플레이어 선택:</strong> <span id="playerChoice">-</span></p>
+            <p><strong>컴퓨터 선택:</strong> <span id="computerChoice">-</span></p>
+        </div>
+        <div class="scoreboard">
+            <div class="score-card">
+                <strong>플레이어</strong>
+                <span id="playerScore">0</span>
+            </div>
+            <div class="score-card">
+                <strong>무승부</strong>
+                <span id="drawScore">0</span>
+            </div>
+            <div class="score-card">
+                <strong>컴퓨터</strong>
+                <span id="computerScore">0</span>
+            </div>
+        </div>
+        <button class="reset" id="resetButton">리셋</button>
+    </div>
+    <script>
+        const choices = ['rock', 'paper', 'scissors'];
+        const choiceText = { rock: '가위', paper: '바위', scissors: '보' };
+        const buttons = document.querySelectorAll('.choices button');
+        const statusText = document.getElementById('status');
+        const playerChoiceText = document.getElementById('playerChoice');
+        const computerChoiceText = document.getElementById('computerChoice');
+        const playerScoreEl = document.getElementById('playerScore');
+        const computerScoreEl = document.getElementById('computerScore');
+        const drawScoreEl = document.getElementById('drawScore');
+        const resetButton = document.getElementById('resetButton');
+
+        let playerScore = 0;
+        let computerScore = 0;
+        let drawScore = 0;
+
+        function getComputerChoice() {
+            return choices[Math.floor(Math.random() * choices.length)];
+        }
+
+        function getResult(player, computer) {
+            if (player === computer) return 'draw';
+            if (
+                (player === 'rock' && computer === 'scissors') ||
+                (player === 'paper' && computer === 'rock') ||
+                (player === 'scissors' && computer === 'paper')
+            ) {
+                return 'win';
+            }
+            return 'lose';
+        }
+
+        function playRound(playerSelection) {
+            const computerSelection = getComputerChoice();
+            const result = getResult(playerSelection, computerSelection);
+
+            playerChoiceText.textContent = choiceText[playerSelection];
+            computerChoiceText.textContent = choiceText[computerSelection];
+
+            if (result === 'win') {
+                playerScore += 1;
+                statusText.textContent = '승리했습니다!';
+                statusText.style.color = '#2e7d32';
+            } else if (result === 'lose') {
+                computerScore += 1;
+                statusText.textContent = '패배했습니다.';
+                statusText.style.color = '#c62828';
+            } else {
+                drawScore += 1;
+                statusText.textContent = '무승부입니다.';
+                statusText.style.color = '#f9a825';
+            }
+
+            playerScoreEl.textContent = playerScore;
+            computerScoreEl.textContent = computerScore;
+            drawScoreEl.textContent = drawScore;
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                playRound(button.dataset.choice);
+            });
+        });
+
+        resetButton.addEventListener('click', () => {
+            playerScore = 0;
+            computerScore = 0;
+            drawScore = 0;
+            playerScoreEl.textContent = '0';
+            computerScoreEl.textContent = '0';
+            drawScoreEl.textContent = '0';
+            playerChoiceText.textContent = '-';
+            computerChoiceText.textContent = '-';
+            statusText.textContent = '결과가 여기에 표시됩니다.';
+            statusText.style.color = '#222';
+        });
+    </script>
+</body>
+</html>
